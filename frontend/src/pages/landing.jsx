@@ -10,25 +10,31 @@ export default function LandingPage() {
           <h2>Video Call</h2>
         </div>
         <div className="navlist">
-          <p>Join as Guest</p>
-          <p>Register</p>
+          <Link to={"/auth"} style={{ textDecoration: "none", color: "white" }}>
+            <p>Join as Guest</p>
+          </Link>
+          <Link to={"/auth"} style={{ textDecoration: "none", color: "white" }}>
+            <p>Register</p>
+          </Link>
           <div role="button">
-            <p>Login</p>
+            <Link to={"/auth"} style={{ textDecoration: "none", color: "white" }}>
+              <p>Login</p>
+            </Link>
           </div>
         </div>
       </nav>
 
       <div className="landingMainContainer">
-          <div>
-            <h1><span style={{color: "#FF9839"}}>Connect</span> with Peoples</h1>
-            <p>Overcome distance with Video call</p>
-            <div role="button">
-              <Link to={"/auth"}>Get Started</Link>
-            </div>
+        <div>
+          <h1><span style={{ color: "#FF9839" }}>Connect</span> with Peoples</h1>
+          <p>Overcome distance with Video call</p>
+          <div role="button">
+            <Link to={"/auth"}>Get Started</Link>
           </div>
-          <div>
-            <img src="/mobile.png" alt="" />
-          </div>
+        </div>
+        <div>
+          <img src="/mobile.png" alt="" />
+        </div>
       </div>
     </div>
   );
