@@ -71,7 +71,7 @@ export default function VideoMeetComponent() {
         navigator.mediaDevices
           .getDisplayMedia({ video: true, audio: true })
           .then(getDislayMediaSuccess)
-          .then((stream) => {})
+          .then((stream) => { })
           .catch((e) => console.log(e));
       }
     }
@@ -168,39 +168,39 @@ export default function VideoMeetComponent() {
 
     stream.getTracks().forEach(
       (track) =>
-        (track.onended = () => {
-          setVideo(false);
-          setAudio(false);
+      (track.onended = () => {
+        setVideo(false);
+        setAudio(false);
 
-          try {
-            let tracks = localVideoref.current.srcObject.getTracks();
-            tracks.forEach((track) => track.stop());
-          } catch (e) {
-            console.log(e);
-          }
+        try {
+          let tracks = localVideoref.current.srcObject.getTracks();
+          tracks.forEach((track) => track.stop());
+        } catch (e) {
+          console.log(e);
+        }
 
-          let blackSilence = (...args) =>
-            new MediaStream([black(...args), silence()]);
-          window.localStream = blackSilence();
-          localVideoref.current.srcObject = window.localStream;
+        let blackSilence = (...args) =>
+          new MediaStream([black(...args), silence()]);
+        window.localStream = blackSilence();
+        localVideoref.current.srcObject = window.localStream;
 
-          for (let id in connections) {
-            connections[id].addStream(window.localStream);
+        for (let id in connections) {
+          connections[id].addStream(window.localStream);
 
-            connections[id].createOffer().then((description) => {
-              connections[id]
-                .setLocalDescription(description)
-                .then(() => {
-                  socketRef.current.emit(
-                    "signal",
-                    id,
-                    JSON.stringify({ sdp: connections[id].localDescription }),
-                  );
-                })
-                .catch((e) => console.log(e));
-            });
-          }
-        }),
+          connections[id].createOffer().then((description) => {
+            connections[id]
+              .setLocalDescription(description)
+              .then(() => {
+                socketRef.current.emit(
+                  "signal",
+                  id,
+                  JSON.stringify({ sdp: connections[id].localDescription }),
+                );
+              })
+              .catch((e) => console.log(e));
+          });
+        }
+      }),
     );
   };
 
@@ -209,13 +209,13 @@ export default function VideoMeetComponent() {
       navigator.mediaDevices
         .getUserMedia({ video: video, audio: audio })
         .then(getUserMediaSuccess)
-        .then((stream) => {})
+        .then((stream) => { })
         .catch((e) => console.log(e));
     } else {
       try {
         let tracks = localVideoref.current.srcObject.getTracks();
         tracks.forEach((track) => track.stop());
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -251,23 +251,23 @@ export default function VideoMeetComponent() {
 
     stream.getTracks().forEach(
       (track) =>
-        (track.onended = () => {
-          setScreen(false);
+      (track.onended = () => {
+        setScreen(false);
 
-          try {
-            let tracks = localVideoref.current.srcObject.getTracks();
-            tracks.forEach((track) => track.stop());
-          } catch (e) {
-            console.log(e);
-          }
+        try {
+          let tracks = localVideoref.current.srcObject.getTracks();
+          tracks.forEach((track) => track.stop());
+        } catch (e) {
+          console.log(e);
+        }
 
-          let blackSilence = (...args) =>
-            new MediaStream([black(...args), silence()]);
-          window.localStream = blackSilence();
-          localVideoref.current.srcObject = window.localStream;
+        let blackSilence = (...args) =>
+          new MediaStream([black(...args), silence()]);
+        window.localStream = blackSilence();
+        localVideoref.current.srcObject = window.localStream;
 
-          getUserMedia();
-        }),
+        getUserMedia();
+      }),
     );
   };
 
@@ -398,7 +398,7 @@ export default function VideoMeetComponent() {
 
             try {
               connections[id2].addStream(window.localStream);
-            } catch (e) {}
+            } catch (e) { }
 
             connections[id2].createOffer().then((description) => {
               connections[id2]
@@ -458,7 +458,7 @@ export default function VideoMeetComponent() {
     try {
       let tracks = localVideoref.current.srcObject.getTracks();
       tracks.forEach((track) => track.stop());
-    } catch (e) {}
+    } catch (e) { }
     window.location.href = "/";
   };
 
@@ -589,29 +589,79 @@ export default function VideoMeetComponent() {
               </IconButton>
             </Badge>
           </div>
-
-          <video
-            className={styles.meetUserVideo}
-            ref={localVideoref}
-            autoPlay
-            muted
-          ></video>
-
-          <div className={styles.conferenceView}>
-            {videos.map((video) => (
-              <div key={video.socketId}>
-                <video
-                  data-socket={video.socketId}
-                  ref={(ref) => {
-                    if (ref && video.stream) {
-                      ref.srcObject = video.stream;
-                    }
-                  }}
-                  autoPlay
-                ></video>
+          {screen ? (
+            /* Screen share mode: shared screen full + sidebar of participants */
+            <div className={styles.screenShareContainer}>
+              <div className={styles.screenShareMain}>
+                <video ref={localVideoref} autoPlay muted></video>
+                <span className={styles.participantName}>{username} (Screen)</span>
               </div>
-            ))}
-          </div>
+              {videos.length > 0 && (
+                <div className={styles.screenShareSidebar}>
+                  {videos.map((video) => (
+                    <div className={styles.participantTile} key={video.socketId}>
+                      <video
+                        data-socket={video.socketId}
+                        ref={(ref) => {
+                          if (ref && video.stream) {
+                            ref.srcObject = video.stream;
+                          }
+                        }}
+                        autoPlay
+                      ></video>
+                      <span className={styles.participantName}>Participant</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : videos.length === 0 ? (
+            /* Solo: local video fills the whole screen */
+            <>
+              <video
+                className={styles.meetUserVideoFull}
+                ref={localVideoref}
+                autoPlay
+                muted
+              ></video>
+              <span className={styles.selfName}>{username || 'You'}</span>
+            </>
+          ) : (
+            /* Multiple participants: dynamic grid + small self PiP */
+            <>
+              <div className={`${styles.conferenceView} ${videos.length === 1 ? styles.grid1 :
+                videos.length === 2 ? styles.grid2 :
+                  videos.length <= 4 ? styles.grid4 :
+                    videos.length <= 6 ? styles.grid6 :
+                      videos.length <= 9 ? styles.grid9 :
+                        styles.gridMany
+                }`}>
+                {videos.map((video) => (
+                  <div className={styles.participantTile} key={video.socketId}>
+                    <video
+                      data-socket={video.socketId}
+                      ref={(ref) => {
+                        if (ref && video.stream) {
+                          ref.srcObject = video.stream;
+                        }
+                      }}
+                      autoPlay
+                    ></video>
+                    <span className={styles.participantName}>Participant</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Small self video at bottom-left */}
+              <video
+                className={styles.meetUserVideo}
+                ref={localVideoref}
+                autoPlay
+                muted
+              ></video>
+              <span className={styles.selfName}>{username || 'You'}</span>
+            </>
+          )}
         </div>
       )}
     </div>

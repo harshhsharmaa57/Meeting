@@ -2,43 +2,178 @@
     position: relative;
     height: 100vh;
     background: rgb(1, 4, 48);
+    overflow: hidden;
 }
 
+/* ---- Self video (bottom-left small pip) ---- */
 .meetUserVideo {
     position: absolute;
     bottom: 10vh;
-    height: 20vh;
-    width: auto;
-    left: 0;
-    border-radius: 20px;
+    left: 16px;
+    height: 150px;
+    width: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    z-index: 10;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transform: scaleX(-1);
 }
 
+/* When alone, self video fills the whole screen */
+.meetUserVideoFull {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 8vh);
+    object-fit: cover;
+    border-radius: 0;
+    border: none;
+    z-index: 1;
+    transform: scaleX(-1);
+}
+
+/* ---- Bottom toolbar ---- */
 .buttonContainers {
     position: absolute;
     width: 100vw;
     bottom: 0;
     text-align: center;
+    z-index: 20;
 }
 
 .buttonContainers svg {
     font-size: 3rem;
 }
 
-.conferenceView { 
-
-    display: flex;
-    
+/* ---- Dynamic participant grid ---- */
+.conferenceView {
+    display: grid;
+    gap: 8px;
     padding: 10px;
-    gap: 10px;
+    width: 100%;
+    height: calc(100vh - 8vh);
+    box-sizing: border-box;
 }
 
-.conferenceView  video {
-    width: 40vw;
-    height: 20vh;
-    min-width: 30vw;
+/* Grid layouts based on participant count */
+.grid1 {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+
+.grid2 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+.grid3,
+.grid4 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.grid5,
+.grid6 {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.grid7,
+.grid8,
+.grid9 {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+
+.gridMany {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1fr;
+    overflow-y: auto;
+}
+
+/* Each participant tile */
+.participantTile {
+    position: relative;
     border-radius: 10px;
+    overflow: hidden;
+    background: #1a1a2e;
+    min-height: 0;
 }
 
+.participantTile video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Username label at bottom of each tile */
+.participantName {
+    position: absolute;
+    bottom: 8px;
+    left: 10px;
+    color: #fff;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* Username label on the self full-screen view */
+.selfName {
+    position: absolute;
+    bottom: 10vh;
+    left: 16px;
+    color: #fff;
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 3px 10px;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+/* ---- Screen share layout ---- */
+.screenShareContainer {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 8vh);
+    gap: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.screenShareMain {
+    flex: 3;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+}
+
+.screenShareMain video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.screenShareSidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    min-width: 180px;
+    max-width: 250px;
+}
+
+.screenShareSidebar .participantTile {
+    aspect-ratio: 16 / 9;
+    flex-shrink: 0;
+}
+
+/* ---- Chat (unchanged) ---- */
 .chatRoom {
     position: absolute;
     height: 90vh;
@@ -47,13 +182,13 @@
     border-radius: 10px;
     width: 30vw;
     padding-inline: 20px;
+    z-index: 25;
 }
 
 .chatContainer {
     position: relative;
     height: 100%;
 }
-
 
 .chattingArea {
     position: absolute;
