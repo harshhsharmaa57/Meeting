@@ -1,113 +1,174 @@
-# Zoon
+# Meeting
 
-Zoon is a full-stack web application designed to demonstrate real-time communication and modern web development practices using a JavaScript-centric technology stack. The project is structured with a clear separation between the frontend and backend, enabling scalable development and maintainability.
+Meeting is a full-stack real-time video meeting web application that allows users to create and join video meeting rooms directly from the browser. The platform uses modern web technologies such as **Node.js, Express, MongoDB, Socket.IO, React, and WebRTC** to enable peer-to-peer video communication.
 
-The application leverages Node.js, Express, MongoDB, and Socket.IO to enable real-time interactions between users while maintaining secure authentication and efficient data management.
-
----
-
-## Project Overview
-
-Zoon is built with a client-server architecture:
-
-* **Frontend** handles the user interface and client interactions.
-* **Backend** manages API requests, authentication, database operations, and real-time communication.
-
-The system enables dynamic communication between users through real-time technologies while maintaining persistent data through a database.
+The application supports authentication, meeting history tracking, and real-time communication between participants.
 
 ---
 
-## Tech Stack
+# Live Demo
 
-### Frontend
+The application is deployed and accessible at
 
-* JavaScript
+http://meet-29j2.onrender.com/
+
+Users can create or join meetings directly from the browser without installing additional software.
+
+---
+
+# Project Overview
+
+Meeting follows a **client-server architecture**.
+
+Frontend (React)
+
+* Handles UI rendering
+* Manages authentication state
+* Connects to backend APIs
+* Establishes WebRTC video streams
+
+Backend (Node.js + Express)
+
+* Handles authentication
+* Stores meeting history
+* Provides REST APIs
+* Manages Socket.IO signaling server
+
+Database (MongoDB)
+
+* Stores users
+* Stores meeting activity history
+
+---
+
+# Tech Stack
+
+## Frontend
+
+* React
+* React Router
+* Context API
+* WebRTC
+* Socket.IO Client
 * HTML
 * CSS
-* Modern frontend tooling
+* JavaScript
 
-### Backend
+## Backend
 
 * Node.js
 * Express.js
 * Socket.IO
-
-### Database
-
 * MongoDB
-* Mongoose ODM
+* Mongoose
 
-### Security and Utilities
+## Security
 
 * bcrypt (password hashing)
-* dotenv (environment variable management)
-* cors (cross-origin resource sharing)
-* http-status (standardized HTTP response codes)
+* crypto (token generation)
+* dotenv (environment configuration)
+* cors (cross origin support)
+
+## Deployment
+
+* Render
 
 ---
 
-## Architecture
+# System Architecture
 
 ```
-Zoon
+Client Browser (React)
+        |
+        |
+Socket.IO + REST APIs
+        |
+        |
+Node.js + Express Server
+        |
+        |
+MongoDB Database
+```
+
+WebRTC enables **peer-to-peer media streaming**, while Socket.IO acts as a **signaling server** for exchanging connection information.
+
+---
+
+# Project Structure
+
+```
+Meeting
 │
 ├── backend
 │   ├── controllers
+│   │    ├── user.controller.js
+│   │    └── socketManager.js
+│   │
 │   ├── models
+│   │    ├── user.model.js
+│   │    └── meeting.model.js
+│   │
 │   ├── routes
-│   ├── socket
-│   ├── middleware
+│   │    └── users.route.js
+│   │
 │   └── server.js
 │
 ├── frontend
-│   ├── public
-│   ├── src
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── services
-│   │   └── styles
+│   ├── pages
+│   │    ├── landing
+│   │    ├── authentication
+│   │    ├── home
+│   │    ├── history
+│   │    └── VideoMeet
+│   │
+│   ├── contexts
+│   │    └── AuthContext
+│   │
+│   └── App.js
 │
 └── README.md
 ```
 
 ---
 
-## Features
+# Backend API
 
-* Real-time communication using WebSockets
-* User authentication and authorization
-* Secure password storage using hashing
-* RESTful API architecture
-* Modular and scalable backend structure
-* Separation of frontend and backend services
-* Database integration with MongoDB
-* Environment-based configuration
-
----
-
-## Real-Time Communication
-
-The project uses **Socket.IO** to enable real-time interactions between clients.
-
-### Example Socket Events
-
-| Event          | Description                         |
-| -------------- | ----------------------------------- |
-| connection     | Triggered when a client connects    |
-| sendMessage    | Emitted when a user sends a message |
-| receiveMessage | Broadcast message to recipients     |
-| disconnect     | Triggered when a client disconnects |
-
----
-
-## API Endpoints
-
-### Authentication
-
-#### Register User
+Base API path
 
 ```
-POST /api/auth/register
+/api/v1/users
+```
+
+---
+
+# API Endpoints
+
+## Health Check
+
+```
+GET /health
+```
+
+Purpose
+
+Verify that the backend server is running.
+
+Response
+
+```
+{
+  "Hello": "world"
+}
+```
+
+---
+
+# Authentication Endpoints
+
+## Register User
+
+```
+POST /api/v1/users/register
 ```
 
 Creates a new user account.
@@ -116,110 +177,238 @@ Request Body
 
 ```
 {
-  "name": "User Name",
-  "email": "user@example.com",
-  "password": "password"
+  "name": "Harsh",
+  "username": "harsh123",
+  "password": "password123"
+}
+```
+
+Process
+
+1. Checks if the username already exists
+2. Hashes password using bcrypt
+3. Saves user to MongoDB
+4. Returns success response
+
+Response
+
+```
+{
+  "message": "User Registered"
 }
 ```
 
 ---
 
-#### Login User
+# Login User
 
 ```
-POST /api/auth/login
+POST /api/v1/users/login
 ```
 
-Authenticates a user and returns a session/token.
+Authenticates a user.
 
 Request Body
 
 ```
 {
-  "email": "user@example.com",
-  "password": "password"
+  "username": "harsh123",
+  "password": "password123"
 }
 ```
 
----
+Process
 
-### User Routes
+1. Finds user in MongoDB
+2. Compares hashed password using bcrypt
+3. Generates random authentication token
+4. Saves token in user document
+5. Returns token
 
-#### Get All Users
-
-```
-GET /api/users
-```
-
-Returns a list of all registered users.
-
----
-
-#### Get User by ID
+Response
 
 ```
-GET /api/users/:id
+{
+  "token": "random_generated_token"
+}
 ```
 
-Returns details of a specific user.
+The token is later used to authenticate activity requests.
 
 ---
 
-#### Update User
+# Meeting Activity Endpoints
 
-```
-PUT /api/users/:id
-```
-
-Updates user profile information.
+These endpoints manage **meeting history**.
 
 ---
 
-#### Delete User
+## Add Meeting to History
 
 ```
-DELETE /api/users/:id
+POST /api/v1/users/add_to_activity
 ```
 
-Removes a user account from the database.
-
----
-
-### Messages
-
-#### Send Message
-
-```
-POST /api/messages
-```
-
-Stores a new message.
+Adds a meeting code to the user's activity history.
 
 Request Body
 
 ```
 {
-  "senderId": "user_id",
-  "receiverId": "user_id",
-  "message": "Hello"
+  "token": "user_token",
+  "meeting_code": "meeting123"
+}
+```
+
+Process
+
+1. Finds user by token
+2. Creates a meeting entry
+3. Saves meeting code to MongoDB
+
+Response
+
+```
+{
+  "message": "Added code to history"
 }
 ```
 
 ---
 
-#### Get Messages
+## Get User Meeting History
 
 ```
-GET /api/messages/:conversationId
+GET /api/v1/users/get_all_activity
 ```
 
-Fetches message history for a conversation.
+Returns the meeting history of a user.
+
+Query Parameter
+
+```
+?token=user_token
+```
+
+Example
+
+```
+GET /api/v1/users/get_all_activity?token=abc123
+```
+
+Response
+
+```
+[
+  {
+    "user_id": "harsh123",
+    "meetingCode": "meeting123"
+  }
+]
+```
 
 ---
 
-## Installation
+# Database Schema
 
-### 1. Clone the repository
+## User Model
+
+```
+User
+ ├── name
+ ├── username
+ ├── password (hashed)
+ ├── token
+ └── createdAt
+```
+
+---
+
+## Meeting Model
+
+```
+Meeting
+ ├── user_id
+ ├── meetingCode
+ └── createdAt
+```
+
+---
+
+# Frontend Routes
+
+The React application defines several client routes.
+
+```
+/            → Landing Page
+/auth        → Login / Register Page
+/home        → Main Dashboard
+/history     → User Meeting History
+/:url        → Video Meeting Room
+```
+
+---
+
+# Video Meeting System
+
+When a user joins a meeting room
+
+1. The URL `/meetingCode` opens the VideoMeet component.
+2. The client connects to the Socket.IO server.
+3. WebRTC peer connections are created.
+4. Media streams are exchanged between peers.
+5. The meeting runs directly between browsers.
+
+---
+
+# Authentication Flow
+
+```
+User registers
+     ↓
+User logs in
+     ↓
+Server generates token
+     ↓
+Token stored on client
+     ↓
+Token used for API requests
+     ↓
+Meeting history stored
+```
+
+---
+
+# Meeting History System
+
+Whenever a user joins or creates a meeting
+
+1. Frontend sends meeting code
+2. Backend stores meeting code
+3. Entry saved in MongoDB
+4. User can view history in `/history` page
+
+---
+
+# Real-Time Communication
+
+Meeting uses **Socket.IO** to handle real-time signaling between clients.
+
+Typical socket events include
+
+* connection
+* join-room
+* user-connected
+* user-disconnected
+* signal exchange for WebRTC
+
+These events allow browsers to establish peer connections.
+
+---
+
+# Installation
+
+## Clone the repository
 
 ```
 git clone https://github.com/harshhsharmaa57/Zoon.git
@@ -231,7 +420,7 @@ cd Zoon
 
 ---
 
-### 2. Install Backend Dependencies
+# Install Backend Dependencies
 
 ```
 cd backend
@@ -240,7 +429,7 @@ npm install
 
 ---
 
-### 3. Install Frontend Dependencies
+# Install Frontend Dependencies
 
 ```
 cd ../frontend
@@ -249,48 +438,40 @@ npm install
 
 ---
 
-### 4. Setup Environment Variables
+# Environment Variables
 
-Create a `.env` file inside the backend folder.
-
-Example configuration:
+Create a `.env` file in backend.
 
 ```
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-CLIENT_URL=http://localhost:3000
+PORT=8000
+MONGO_URL=your_mongodb_connection_string
 ```
 
 ---
 
-### 5. Start the Backend Server
+# Run Backend
 
 ```
 cd backend
 npm start
 ```
 
+Server runs on
+
+```
+http://localhost:8000
+```
+
 ---
 
-### 6. Start the Frontend
+# Run Frontend
 
 ```
 cd frontend
 npm start
 ```
 
----
-
-## Running the Application
-
-Backend runs on:
-
-```
-http://localhost:5000
-```
-
-Frontend runs on:
+Frontend runs on
 
 ```
 http://localhost:3000
@@ -298,93 +479,52 @@ http://localhost:3000
 
 ---
 
-## Database Schema
+# Deployment
 
-### User Model
+The project is deployed on Render.
 
-```
-User
- ├── name
- ├── email
- ├── password
- ├── createdAt
-```
+Live URL
+
+http://meet-29j2.onrender.com/
 
 ---
 
-### Message Model
+# Features
 
-```
-Message
- ├── senderId
- ├── receiverId
- ├── message
- ├── timestamp
-```
-
----
-
-## Security Considerations
-
-* Passwords are hashed using bcrypt before storage.
-* Sensitive configuration values are stored using environment variables.
-* CORS policies prevent unauthorized cross-origin requests.
+* Real time video meeting rooms
+* WebRTC peer-to-peer streaming
+* User authentication
+* Meeting history tracking
+* Token based authentication
+* MongoDB data persistence
+* React based UI
+* Socket.IO signaling server
 
 ---
 
-## Development Principles
+# Future Improvements
 
-The project follows several development practices:
+Possible future improvements
 
-* Modular backend architecture
-* Separation of concerns
-* Scalable folder structure
-* RESTful API conventions
-* Environment-based configuration
-
----
-
-## Future Improvements
-
-Potential enhancements for the project include:
-
-* JWT based authentication
-* File sharing support
-* Video or voice communication
-* Push notifications
-* Improved UI and UX
+* Screen sharing
+* Chat during meetings
+* Meeting recording
+* User profile management
+* TURN server support
+* Mobile responsiveness
 * Docker containerization
-* CI/CD deployment pipelines
 
 ---
 
-## Contributing
-
-Contributions are welcome.
-If you would like to contribute:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Submit a pull request
-
----
-
-## License
-
-This project is open source and available under the MIT License.
-
----
-
-## Author
+# Author
 
 Harsh Kumar Sharma
 
-GitHub:
+GitHub
 https://github.com/harshhsharmaa57
 
 ---
 
-## Acknowledgements
+# License
 
-This project was developed to explore real-time web technologies and modern full-stack development practices using Node.js and modern JavaScript frameworks.
+This project is open source and available under the MIT License.
